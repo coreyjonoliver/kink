@@ -1,57 +1,64 @@
 package org.coreyoliver.kink {
+  import net.liftweb.common._
+  import net.liftweb.util._
+  import Helpers._
+  import net.liftweb.json._
+  import Extraction._
+  import JsonDSL._
+  import dispatch._
   import org.rogach.scallop._
   import org.rogach.scallop.exceptions._
 
-  class Conf(
-    arguments: Array[String],
-    onError:   (Throwable, Scallop) => Nothing
-  ) extends ScallopConf(arguments) {
+  class Conf(arguments: Array[String])
+      extends LazyScallopConf(arguments) {
     val obtainCode = new Subcommand("obtain-code") {
-      val clientId = opt[String](
+      val clientId = trailArg[String](
         "client-id",
-        'c',
         "The client id.",
-        required = true,
-        argName = "client-id"
+        required = true
       )
-      val responseType = opt[String](
+      val responseType = trailArg[String](
         "response-type",
-        'r',
         "The response type.",
-        required = true,
-        argName = "response-type"
+        required = true
       )
-      val redirectUri = opt[String](
+      val redirectUri = trailArg[String](
         "redirect-uri",
-        'u',
         "The redirect uri.",
-        required = true,
-        argName = "redirect-uri"
+        required = true
       )
-      val scope = opt[String](
+      val scope = trailArg[String](
         "scope",
-        's',
         "The scope.",
-        required = true,
-        argName = "scope"
+        required = true
+      )
+      val url = trailArg[String](
+        "url",
+        "The url.",
+        required = true
       )
     }
-    override protected def onError(e: Throwable) = onError(e, builder)
+  }
+
+  object Kink extends KinkImpl
+
+  trait KinkImpl {
+
+    protected def authorizeUrl(url: String, clientId: String, responseType: String, scope: String) {
+      val oauth_url = host(url) <<?
+      Map("client_id" -> clientId, "response_type" -> responseType, "scope" -> scope)
+
+      oauth_url.secure.build.getRawUrl
+    }
   }
 
   object Main extends App {
-    val conf = new Conf(args, onError)
-    println("client-id: %s".format(conf.obtainCode.clientId))
-
-
-    private def onError(e: Throwable, scallop: Scallop) = e match {
-      case Help(_) =>
-        scallop.printHelp
-        sys.exit(0)
-      case _ =>
-        println("Error: %s".format(e.getMessage))
-        scallop.printHelp
-        sys.exit(1)
+    val conf = new Conf(args)
+    conf.initialize {
+      case Version => Unit 
+      case Exit() => Unit
+      case ScallopException(message) => Unit
+      case RequiredOptionNotFound(optionName) => Unit
     }
   }
 }
