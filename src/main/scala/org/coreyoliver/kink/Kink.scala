@@ -60,5 +60,7 @@ package org.coreyoliver.kink {
       case ScallopException(message) => Unit
       case RequiredOptionNotFound(optionName) => Unit
     }
+
+    println(conf.obtainCode)
   }
 }

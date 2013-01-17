@@ -1,3 +1,5 @@
+seq(com.github.retronym.SbtOneJar.oneJarSettings: _*)
+
 name := "kink"
 
 organization := "org.coreyoliver"
@@ -15,11 +17,9 @@ libraryDependencies ++= Seq(
   "net.liftweb" %% "lift-util" % "2.5-M1",
   "net.liftweb" %% "lift-json" % "2.5-M1",
   "net.databinder.dispatch" %% "core" % "0.9.1",
-  "net.databinder.dispatch" %% "lift-json" % "0.9.1" exclude("net.liftweb", "lift-json"),
-  "joda-time" % "joda-time" % "2.1",
-  "org.joda" % "joda-convert" % "1.1",
   "org.scalatest" %% "scalatest" % "1.8" % "test",
-  "org.rogach" %% "scallop" % "0.7.0"
+  "org.rogach" %% "scallop" % "0.7.0",
+  "commons-lang" % "commons-lang" % "2.6"
 )
 
 parallelExecution in Test := false
